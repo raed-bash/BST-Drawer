@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tree Drawer</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .fly-form {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fly-form">
+      <form id="node-insert-form">
+        <input type="number" name="value" />
+        <button type="submit">Insert</button>
+      </form>
+      <form id="node-remove-form">
+        <input type="number" name="value" />
+        <button type="submit">Remove</button>
+      </form>
+      <button id="reset">Reset</button>
+    </div>
+    <canvas id="canvas" style="border: 1px solid #d3d3d3"></canvas>
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>
