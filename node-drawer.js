@@ -48,6 +48,12 @@ export default class NodeDrawer {
   }
 
   bstDraw() {
+    if (!this.bst.root) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      return;
+    }
+
     const startingPointX = this.startingPoint.x;
     const startingPointY = this.startingPoint.y;
 
@@ -88,7 +94,6 @@ export default class NodeDrawer {
         }
       }
     };
-
     bstDrawer(this.bst.root);
   }
   /**
