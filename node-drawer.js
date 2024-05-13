@@ -21,27 +21,33 @@ window.onresize = function () {
 canvasResize();
 
 export default class NodeDrawer {
-  constructor(bst) {
-    /**
-     * @type {BST}
-     */
-
+  /**
+   *
+   * @param {BST} bst
+   * @param {Object} options
+   * @param {number} options.radius
+   * @param {Object} options.startingPoint
+   * @param {number} options.startingPoint.x
+   * @param {number} options.startingPoint.y
+   */
+  constructor(bst, options = { radius: 30, startingPoint: { x: 960, y: 50 } }) {
     this.bst = bst;
 
-    this.startingPoint = { x: 960, y: 50 };
+    this.startingPoint = {
+      x: options.startingPoint.x || 960,
+      y: options.startingPoint.y || 50,
+    };
 
-    this.goesOnX = 100;
+    this.radius = options.radius || 30;
 
-    this.goesOnY = 100;
+    this.goesOnX = 3.3333 * this.radius;
 
-    this.radius = 30;
+    this.goesOnY = 3.3333 * this.radius;
 
-    this.drawedNode = [];
+    this.drawedNode = new Set();
   }
 
   bstDraw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     const startingPointX = this.startingPoint.x;
     const startingPointY = this.startingPoint.y;
 
@@ -50,15 +56,27 @@ export default class NodeDrawer {
 
     const bstDrawer = (node, map = []) => {
       if (node.data !== null) {
-        if (map.length === 0) {
-          this.drawNode(startingPointX, startingPointY, node.data);
-        } else {
-          this.drawNode(
-            calculateX(startingPointX, map),
-            calculateY(startingPointY, map),
-            node.data,
-            { noLeftLine: !node.left, noRightLine: !node.right }
-          );
+        if (!this.drawedNode.has(node.data)) {
+          if (map.length === 0) {
+            this.drawNode(startingPointX, startingPointY, node.data, {
+              noLeftLine: true,
+              noRightLine: true,
+            });
+          } else {
+            const currentLocation = map[map.length - 1];
+
+            this.drawNode(
+              calculateX(startingPointX, map),
+              calculateY(startingPointY, map),
+              node.data,
+              {
+                noLeftLine: currentLocation === "left",
+                noRightLine: currentLocation === "right",
+              }
+            );
+          }
+
+          this.drawedNode.add(node.data);
         }
 
         if (node.right !== null) {
@@ -89,7 +107,7 @@ export default class NodeDrawer {
     data = "0",
     options = { noLeftLine: false, noRightLine: false }
   ) {
-    const radius = options.radius || this.radius || 30;
+    const radius = options.radius || this.radius;
 
     ctx.beginPath();
 
@@ -98,6 +116,8 @@ export default class NodeDrawer {
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
 
     ctx.fill();
+
+    ctx.strokeStyle = "#000";
 
     ctx.stroke();
 
@@ -113,24 +133,59 @@ export default class NodeDrawer {
 
     ctx.closePath();
 
+    const speed = 4;
+
     if (!options.noRightLine) {
-      this.drawLine(
-        { x: x + radius / 1.2, y: y + radius / 2 },
-        {
-          x: x + (this.goesOnX / 100) * 80,
-          y: y + (this.goesOnY / 100) * 80,
-        }
-      );
+      const moveToX = x + (this.goesOnX / 100) * 80;
+      const moveToY = y - (this.goesOnY / 100) * 80;
+      const lineToX = x + radius / 1.5;
+      const lineToY = y - radius / 2;
+
+      let increaseLineToX = moveToX;
+      let increaseLineToY = moveToY;
+
+      const animate = () => {
+        increaseLineToX -= speed;
+        increaseLineToY += speed;
+
+        this.drawLine(
+          { x: moveToX, y: moveToY },
+          {
+            x: increaseLineToX,
+            y: increaseLineToY,
+          }
+        );
+
+        if (increaseLineToX > lineToX && increaseLineToY < lineToY)
+          requestAnimationFrame(animate);
+      };
+      animate();
     }
 
     if (!options.noLeftLine) {
-      this.drawLine(
-        { x: x - radius / 1.2, y: y + radius / 2 },
-        {
-          x: x - (this.goesOnX / 100) * 80,
-          y: y + (this.goesOnY / 100) * 80,
-        }
-      );
+      const moveToX = x - (this.goesOnX / 100) * 80;
+      const moveToY = y - (this.goesOnY / 100) * 80;
+      const lineToX = x - radius / 1.5;
+      const lineToY = y - radius / 2;
+
+      let increaseLineToX = moveToX;
+      let increaseLineToY = moveToY;
+
+      const animate = () => {
+        increaseLineToX += speed;
+        increaseLineToY += speed;
+
+        this.drawLine(
+          { x: moveToX, y: moveToY },
+          {
+            x: increaseLineToX,
+            y: increaseLineToY,
+          }
+        );
+        if (increaseLineToX < lineToX && increaseLineToY < lineToY)
+          requestAnimationFrame(animate);
+      };
+      animate();
     }
   }
 
@@ -142,10 +197,13 @@ export default class NodeDrawer {
    * @param {number} lineTo.x
    * @param {number} lineTo.y
    */
-  drawLine(moveTo = { x, y }, lineTo = { x, y }) {
+  drawLine(moveTo = { x, y }, lineTo = { x, y }, right) {
+    ctx.beginPath();
     ctx.moveTo(moveTo.x, moveTo.y);
     ctx.lineTo(lineTo.x, lineTo.y);
+    ctx.strokeStyle = "green";
     ctx.stroke();
+    ctx.closePath();
   }
 
   /**
