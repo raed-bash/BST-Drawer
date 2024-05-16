@@ -2,7 +2,7 @@ import Node from "./node.js";
 
 export default class BST {
   constructor() {
-    this.root = null;
+    this.root = JSON.parse(localStorage.getItem("root"));
   }
 
   add(data) {
@@ -30,8 +30,19 @@ export default class BST {
           return null;
         }
       };
-      return searchTree(node);
+      searchTree(node);
+
+      this.updateStorage(node);
     }
+  }
+
+  updateStorage(root) {
+    localStorage.setItem("root", JSON.stringify(root));
+  }
+  reset() {
+    this.root = null;
+
+    this.updateStorage(null);
   }
 
   findMin() {
@@ -105,5 +116,11 @@ export default class BST {
       }
     };
     this.root = removeNode(this.root, data);
+
+    this.updateStorage(this.root);
+  }
+
+  updateStorage(root) {
+    localStorage.setItem("root", JSON.stringify(root));
   }
 }

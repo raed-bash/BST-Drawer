@@ -1,17 +1,19 @@
 import BST from "./bst.js";
-import NodeDrawer from "./node-drawer.js";
+import TreeDrawer from "./tree-drawer.js";
 
 const bst = new BST();
 
 const defaultValues = [50, 68, 65, 47, 30, 10, 8, 9, 15];
 
-defaultValues.forEach((value) => {
-  bst.add(value);
-});
+if (bst.root === null) {
+  defaultValues.forEach((value) => {
+    bst.add(value);
+  });
+}
 
-export const nodeDrawer = new NodeDrawer(bst);
+export const treeDrawer = new TreeDrawer(bst);
 
-nodeDrawer.bstDraw();
+treeDrawer.update();
 
 document.getElementById("node-insert-form").onsubmit = function (e) {
   e.preventDefault();
@@ -25,7 +27,7 @@ document.getElementById("node-insert-form").onsubmit = function (e) {
 
   bst.add(parseInt(value));
 
-  nodeDrawer.bstDraw();
+  treeDrawer.update();
 
   input.value = "";
 };
@@ -41,12 +43,12 @@ document.getElementById("node-remove-form").onsubmit = function (e) {
 
   bst.remove(parseInt(value));
 
-  nodeDrawer.bstDraw();
+  treeDrawer.update();
 
   input.value = "";
 };
 
 document.getElementById("reset").onclick = function () {
-  bst.root = null;
-  nodeDrawer.bstDraw();
+  bst.reset();
+  treeDrawer.update();
 };
